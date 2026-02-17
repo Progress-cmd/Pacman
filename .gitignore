@@ -366,3 +366,4 @@ FodyWeavers.xsd
 Pacman.slnx
 Pacman.vcxproj
 Pacman.vcxproj.filters
+*.dll

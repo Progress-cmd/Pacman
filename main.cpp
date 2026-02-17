@@ -1,21 +1,27 @@
-#include <iostream>
 #include <SFML/Graphics.hpp>
+#include <iostream>
+
+#include "Display.h"
+
+
 int main()
 {
-    std::cout << "Demo SFML : " << std::endl;
-    sf::RenderWindow window(sf::VideoMode({200, 200}), "SFML works!");
-    sf::CircleShape shape(100.f);
-    shape.setFillColor(sf::Color::Green);
-    while (window.isOpen())
+    // --- Initialisation de l'affichage --- //
+    Display window;
+
+    sf::RenderWindow& fenetre_obj = window.getWindow();
+
+    // Boucle principale
+    while (fenetre_obj.isOpen())
     {
-        while (const std::optional event = window.pollEvent())
+        while (const std::optional event = fenetre_obj.pollEvent())
         {
             if (event->is<sf::Event::Closed>())
-                window.close();
+                fenetre_obj.close();
         }
-        window.clear();
-        window.draw(shape);
-        window.display();
+        fenetre_obj.clear();
+        window.createMap();
+        fenetre_obj.display();
     }
     return 0;
 }

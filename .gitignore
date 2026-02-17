@@ -361,3 +361,8 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Retirage des fichiers de configurations spécifique à Visual Studio
+Pacman.slnx
+Pacman.vcxproj
+Pacman.vcxproj.filters

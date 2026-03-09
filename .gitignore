@@ -367,3 +367,6 @@ Pacman.slnx
 Pacman.vcxproj
 Pacman.vcxproj.filters
 *.dll
+
+build
+*.pdf

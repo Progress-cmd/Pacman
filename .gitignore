@@ -369,5 +369,6 @@ Pacman.vcxproj.filters
 *.dll
 
 build
+assets
 *.pdf
 CMakeLists.txt

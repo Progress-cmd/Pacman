@@ -4,6 +4,8 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <unordered_map>
+#include <iostream>
+#include <cmath>
 
 
 class Display
@@ -12,24 +14,33 @@ public:
 	Display();
 	~Display();
 
-	void createMap();
+	void createMap(int level, int highScore, int score, int nbLife);
 
     void updateMap(int x, int y);
     int getMap(int x, int y);
 
 	sf::RenderWindow& getWindow();
 
+    void createPacman(float posex, float posey, int direction, int mouthAngle);
+
+    int getSizeX() { return x; }
+    int getSizeY() { return y; }
+    int getPas() { return pas; }
+
 protected:
-	static const unsigned int x = 31;
-	static const unsigned int y = 28;
+	static const unsigned int y = 31;
+	static const unsigned int x = 28;
 
 	unsigned int pas = 25;
+	unsigned int m_offset = 150;
+	unsigned int m_life = 42;
 
-	sf::Vector2u m_size = { y * pas, x * pas };
+	sf::Vector2u m_size = { x * pas, y * pas + m_offset + m_life};
 	sf::RenderWindow m_window;
+    sf::Font m_font;
 
     // 28 colonnes x 31 lignes
-    int map[x][y] = {
+    int map[y][x] = {
         {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, // 0
         {1,3,3,3,3,3,3,3,3,3,3,3,3,1,1,3,3,3,3,3,3,3,3,3,3,3,3,1}, // 1
         {1,3,1,1,1,1,3,1,1,1,1,1,3,1,1,3,1,1,1,1,1,3,1,1,1,1,3,1}, // 2
@@ -74,6 +85,9 @@ protected:
 	void createSquare(float width, float height, sf::Color color, float posX, float posY);
     void createCircle(float ray, sf::Color color, float posX, float posY);
     void createWall(int i, int j);
+
+    void showInfo(int level, int highScore, int score);
+    void showLife(int nbLife);
 };
 
 #endif

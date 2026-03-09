@@ -25,3 +25,6 @@ int main()
     }
     return 0;
 }
+
+// Pour manger les Pac gom : window.updateMap(x, y);
+// Pour obtenir une information sur la map : window.getMap(x, y);

@@ -38,11 +38,6 @@ void Display::createMap()
                 sf::Color c1 = colorMap[3];
                 createCircle(5, c1, j * 25.f + 7.5f, i * 25.f + 7.5f);
             }
-            else
-            {
-                sf::Color c = colorMap[id];
-                createSquare(25, 25, c, j * 25.f, i * 25.f);
-            }
         }
     }
 }
@@ -69,13 +64,42 @@ void Display::createWall(int i, int j)
     sf::Color mur = colorMap[1];
     createSquare(25, 25, vide, j * 25.f, i * 25.f);
 
-    if (i < 1 || map[i-1][j] == 3)
+    if (i < 1 || map[i-1][j] == 0 || map[i-1][j] == 2 || map[i-1][j] == 3)
     {
-    createSquare(5, 25, mur, j * 25.f, i * 20.f);
+    createSquare(25, 3, mur, j * 25.f, i * 25.f);
+    }
+    if (i > 29 || map[i+1][j] == 0 || map[i+1][j] == 2 || map[i+1][j] == 3)
+    {
+    createSquare(25, 3, mur, j * 25.f, i * 25.f + 22.0f);
+    }
+
+    if (j < 1 || map[i][j-1] == 0 || map[i][j-1] == 2 || map[i][j-1] == 3)
+    {
+    createSquare(3, 25, mur, j * 25.f, i * 25.f);
+    }
+    if (j > 26 || map[i][j+1] == 0 || map[i][j+1] == 2 || map[i][j+1] == 3)
+    {
+    createSquare(3, 25, mur, j * 25.f + 22.0f, i * 25.f);
     }
 }
 
 sf::RenderWindow& Display::getWindow()
 {
     return m_window;
+}
+
+void Display::updateMap(int x, int y)
+{
+    if ((y >= 0 || y <= 30) || (x >= 0 || x <= 27))
+    {
+        if (map[y][x] == 2 || map[y][x] == 3)
+        {
+            map[y][x] = 0;
+        }
+    }
+}
+
+int Display::getMap(int x, int y)
+{
+    return map[y][x];
 }

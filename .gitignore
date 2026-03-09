@@ -370,3 +370,4 @@ Pacman.vcxproj.filters
 
 build
 *.pdf
+CMakeLists.txt

@@ -7,20 +7,29 @@ Pacman::~Pacman() {}
 void Pacman::update(float dt)
 {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right)){
-        m_x += m_speed * dt;
         m_direction = 3;
     }
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left)){
-        m_x += -m_speed * dt;
         m_direction = 1;
     }
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up)){
-        m_y += -m_speed * dt;
         m_direction = 0;
     }
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down)){
-        m_y += m_speed * dt;
         m_direction = 2;
+    }
+
+    if (m_direction == 3){
+        m_x += m_speed * dt;
+    }
+    else if (m_direction == 1){
+        m_x += -m_speed * dt;
+    }
+    else if (m_direction == 0){
+        m_y += -m_speed * dt;
+    }
+    else if (m_direction == 2){
+        m_y += m_speed * dt;
     }
 
     if (m_x < 0)

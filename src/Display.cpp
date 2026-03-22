@@ -106,6 +106,8 @@ void Display::updateMap(int x, int y)
 
 int Display::getMap(int x, int y)
 {
+    if (x < 0 || x >= (int)this->x || y < 0 || y >= (int)this->y)
+        return 1; // traiter les bords comme des murs
     return map[y][x];
 }
 
@@ -174,7 +176,7 @@ void Display::showLife(int nbLife)
 void Display::createPacman(float posex, float posey, int direction, int mouthAngle)
 {
     const int points = 32; // résolution du cercle
-    const float radius = 11.f;
+    const float radius = 12.5f;
 
     // Angle de la bouche selon la direction
     float baseAngle = 0.f;
@@ -191,15 +193,82 @@ void Display::createPacman(float posex, float posey, int direction, int mouthAng
     pacman.setPoint(0, sf::Vector2f(radius, radius));
 
     for (int i = 0; i < points; i++)
-{
+    {
     float angle = (baseAngle + mouthAngle) + i * (360.f - 2.f * mouthAngle) / (float)(points - 1);
     float rad = angle * 3.14159265f / 180.f;
     float px = radius + radius * std::cos(rad);
     float py = radius + radius * std::sin(rad);
     pacman.setPoint(i + 1, sf::Vector2f(px, py));
-}
+    }
 
     pacman.setFillColor(sf::Color::Yellow);
     pacman.setPosition(sf::Vector2f(posex, posey));
     m_window.draw(pacman);
+}
+
+// Ajoute float time en paramètre
+void Display::createGhosts(float posex, float posey, int number, float time)
+{
+    const int headPoints = 16;   // Points pour le demi-cercle du haut
+    const int bottomPoints = 10; // Nombre de points pour les vagues du bas
+    const float radius = 11.f;
+    const float ghostHeight = 22.f;
+
+    sf::ConvexShape ghost;
+    ghost.setPointCount(headPoints + bottomPoints);
+
+    // 1. Le haut du fantôme (demi-cercle)
+    for (int i = 0; i < headPoints; i++) {
+        float angle = i * 180.f / (headPoints - 1) + 180.f;
+        float rad = angle * 3.14159f / 180.f;
+        ghost.setPoint(i, sf::Vector2f(radius + radius * cos(rad), radius + radius * sin(rad)));
+    }
+
+    // 2. Le bas du fantôme (Vagues animées)
+    for (int i = 0; i < bottomPoints; i++) {
+        // On va de droite (radius*2) à gauche (0)
+        float x = (radius * 2.f) - (i * (radius * 2.f) / (bottomPoints - 1));
+        
+        // Calcul de la vague : amplitude de 3 pixels
+        // Le "time * 10" gère la vitesse de l'ondulation
+        float wave = std::sin(time * 10.f + (x * 0.5f)) * 3.f;
+        
+        ghost.setPoint(headPoints + i, sf::Vector2f(x, ghostHeight + wave));
+    }
+
+    // --- Garde ton switch de couleur ici ---
+    sf::Color colors[] = {sf::Color::Red, sf::Color(255,182,255), sf::Color::Cyan, sf::Color(255,182,85)};
+    ghost.setFillColor(number < 4 ? colors[number] : sf::Color::White);
+    
+    ghost.setPosition(sf::Vector2f(posex, posey));
+    m_window.draw(ghost);
+
+    // --- Dessine les yeux ici (comme vu précédemment) ---
+    ghost.setFillColor(number < 4 ? colors[number] : sf::Color::White);
+    
+    // Correction ici : on passe un Vector2f
+    ghost.setPosition(sf::Vector2f(posex, posey));
+    m_window.draw(ghost);
+
+    // Yeux
+    sf::CircleShape eye(3.f);
+    eye.setFillColor(sf::Color::White);
+    
+    // Correction ici aussi
+    eye.setPosition(sf::Vector2f(posex + radius * 0.4f, posey + radius * 0.6f));
+    m_window.draw(eye);
+    
+    eye.setPosition(sf::Vector2f(posex + radius * 1.2f, posey + radius * 0.6f));
+    m_window.draw(eye);
+
+    // Pupilles
+    sf::CircleShape pupil(1.5f);
+    pupil.setFillColor(sf::Color::Blue);
+    
+    // Et encore ici
+    pupil.setPosition(sf::Vector2f(posex + radius * 0.5f, posey + radius * 0.8f));
+    m_window.draw(pupil);
+    
+    pupil.setPosition(sf::Vector2f(posex + radius * 1.3f, posey + radius * 0.8f));
+    m_window.draw(pupil);
 }

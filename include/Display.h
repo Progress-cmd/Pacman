@@ -22,10 +22,12 @@ public:
 	sf::RenderWindow& getWindow();
 
     void createPacman(float posex, float posey, int direction, int mouthAngle);
+    void createGhosts(float posex, float posey, int number, float time);
 
     int getSizeX() { return x; }
     int getSizeY() { return y; }
     int getPas() { return pas; }
+    int getOffset() { return m_offset; }
 
 protected:
 	static const unsigned int y = 31;
@@ -53,7 +55,7 @@ protected:
         {1,1,1,1,1,1,3,1,1,1,1,1,3,1,1,3,1,1,1,1,1,3,1,1,1,1,1,1}, // 9
         {0,0,0,0,0,1,3,1,1,1,1,1,3,1,1,3,1,1,1,1,1,3,1,0,0,0,0,0}, // 10
         {0,0,0,0,0,1,3,1,1,3,3,3,3,3,3,3,3,3,3,1,1,3,1,0,0,0,0,0}, // 11
-        {0,0,0,0,0,1,3,1,1,3,1,1,1,0,0,1,1,1,3,1,1,3,1,0,0,0,0,0}, // 12
+        {0,0,0,0,0,1,3,1,1,3,1,1,1,4,4,1,1,1,3,1,1,3,1,0,0,0,0,0}, // 12
         {1,1,1,1,1,1,3,1,1,3,1,0,0,0,0,0,0,1,3,1,1,3,1,1,1,1,1,1}, // 13
         {0,0,0,0,0,0,3,3,3,3,1,0,0,0,0,0,0,1,3,3,3,3,0,0,0,0,0,0}, // 14
         {1,1,1,1,1,1,3,1,1,3,1,0,0,0,0,0,0,1,3,1,1,3,1,1,1,1,1,1}, // 15

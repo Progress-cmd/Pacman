@@ -22,9 +22,12 @@ private:
     float m_x, m_y;
 
     float m_speed = 150.f;
-    int m_direction = 0;
-
+    int m_direction = -1;
+    
+    const float m_size = 25.f;
     Display& m_display;
+
+    int m_wantedDirection = -1;
 };
 
 #endif

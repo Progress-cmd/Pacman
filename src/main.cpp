@@ -60,7 +60,7 @@ int main()
         fenetre_obj.clear();
         
         // rendu graphique
-        window.createMap(0, 10, 4, 3);
+        window.createMap(0, 10, pacman.getScore(), 3);
         window.createPacman(pacman.getX(), pacman.getY(), pacman.getDirection(), mouthAngle);
         for (int i = 0; i < 4; i++)
         {

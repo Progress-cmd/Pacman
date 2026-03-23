@@ -17,12 +17,15 @@ public:
     float const getX();
     float const getY();
     int const getDirection();
+    int const getScore() ;
 
 private:
     float m_x, m_y;
 
     float m_speed = 150.f;
     int m_direction = -1;
+
+    int m_score = 0;
     
     const float m_size = 25.f;
     Display& m_display;

@@ -97,6 +97,12 @@ void Pacman::update(float dt)
     if (m_x > (float)(m_display.getSizeX() - 1) * m_display.getPas())
         m_x = 0;
     m_wantedDirection = -1;
+
+    // --- Scores ---
+    if (m_display.updateMap((m_x+12.5)/25, ((m_y+12.5) - m_display.getOffset())/25) == 1)
+    {
+        m_score += 100;
+    }
 }
 
 float const Pacman::getX()
@@ -112,4 +118,9 @@ float const Pacman::getY()
 int const Pacman::getDirection()
 {
     return m_direction;
+}
+
+int const Pacman::getScore()
+{
+    return m_score;
 }

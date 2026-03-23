@@ -40,7 +40,14 @@ void Display::createMap(int level, int highScore, int score, int nbLife)
                 sf::Color c = colorMap[0];
                 createSquare(25, 25, c, j * 25.f, i * 25.f);
                 sf::Color c1 = colorMap[3];
-                createCircle(5, c1, j * 25.f + 7.5f, i * 25.f + 7.5f);
+                createCircle(4, c1, j * 25.f + 8.5f, i * 25.f + 8.5f);
+            }
+            else if (id == 4)
+            {
+                sf::Color c = colorMap[0];
+                createSquare(25, 25, c, j * 25.f, i * 25.f); // fond noir
+                sf::Color c1 = colorMap[4];
+                createSquare(25, 3, c1, j * 25.f, i * 25.f); // mur coloré en haut
             }
         }
     }
@@ -93,15 +100,17 @@ sf::RenderWindow& Display::getWindow()
     return m_window;
 }
 
-void Display::updateMap(int x, int y)
+int Display::updateMap(int x, int y)
 {
     if ((y >= 0 && y <= 30) && (x >= 0 && x <= 27))
     {
         if (map[y][x] == 2 || map[y][x] == 3)
         {
             map[y][x] = 0;
+            return 1;
         }
     }
+    return 0;
 }
 
 int Display::getMap(int x, int y)

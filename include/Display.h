@@ -16,7 +16,7 @@ public:
 
 	void createMap(int level, int highScore, int score, int nbLife);
 
-    void updateMap(int x, int y);
+    int updateMap(int x, int y);
     int getMap(int x, int y);
 
 	sf::RenderWindow& getWindow();
@@ -81,7 +81,8 @@ protected:
 		{0, sf::Color::Black},  // Vide
 		{1, sf::Color::Blue},   // Mur
         {2, sf::Color::White},  // Super Pac gom
-        {3, sf::Color::Yellow}  // Pac gom
+        {3, sf::Color::Yellow},  // Pac gom
+        {4, sf::Color(255, 182, 193)} // rose clair mur spawn
 	};
 
 	void createSquare(float width, float height, sf::Color color, float posX, float posY);

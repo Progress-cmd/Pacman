@@ -21,15 +21,16 @@ public:
 
 	sf::RenderWindow& getWindow();
 
-    void createPacman(float posex, float posey, int direction, int mouthAngle);
-    void createGhosts(float posex, float posey, int number, float time);
+    void createPacman(float posex, float posey, int direction, int mouthAngle, bool boost);
+    void createGhosts(float posex, float posey, int number, float time, bool boost);
 
     int getSizeX() { return x; }
     int getSizeY() { return y; }
     int getPas() { return pas; }
     int getOffset() { return m_offset; }
+    std::vector<unsigned int>& getBonus() { return m_bonus; }
 
-protected:
+private:
 	static const unsigned int y = 31;
 	static const unsigned int x = 28;
 
@@ -37,6 +38,7 @@ protected:
 	unsigned int m_offset = 150;
 	unsigned int m_life = 42;
 
+    std::vector<unsigned int> m_bonus = {1,1,2,3}; // bonus 1 : mangeur de fantome; bonus 2 : +500 points; bonus 3 : vie supplémentaire
 	sf::Vector2u m_size = { x * pas, y * pas + m_offset + m_life};
 	sf::RenderWindow m_window;
     sf::Font m_font;
@@ -82,7 +84,8 @@ protected:
 		{1, sf::Color::Blue},   // Mur
         {2, sf::Color::White},  // Super Pac gom
         {3, sf::Color::Yellow},  // Pac gom
-        {4, sf::Color(255, 182, 193)} // rose clair mur spawn
+        {4, sf::Color(255, 182, 193)}, // rose clair mur spawn
+        {5, sf::Color::Black}
 	};
 
 	void createSquare(float width, float height, sf::Color color, float posX, float posY);

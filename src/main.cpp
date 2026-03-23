@@ -23,11 +23,17 @@ int main()
     std::vector<Ghost*> fantomes;
     for (int i = 0; i < 4; i++)
     {
-        Ghost* g = new Ghost((12+i) * 25.f, 20 * 25.f, i, window); 
+        Ghost* g = new Ghost((12+i) * 25.f, 20 * 25.f, i, window, pacman); 
         fantomes.push_back(g);
     }
 
     std::srand(std::time(nullptr));
+
+    int lastLife = pacman.getLife();
+
+    float releaseTimer = 0.f;
+    int releasedCount = 0;
+    const float releaseInterval = 5.f; // 1 fantôme toutes les 5 secondes
 
     // --- Boucle principale --- //
     while (fenetre_obj.isOpen())
@@ -38,7 +44,6 @@ int main()
             if (event->is<sf::Event::Closed>())
                 fenetre_obj.close();
         }
-
 
         // animation de la bouche
         float time = animationClock.getElapsedTime().asSeconds();
@@ -55,16 +60,34 @@ int main()
             fantomes[i]->update(dt);
         }
 
+        int currentLife = pacman.getLife();
+        if (currentLife < lastLife)
+        {
+            pacman.setPosition(14 * 25.f, 23 * 25.f);
+            lastLife = currentLife;
+        }
+
+        if (releasedCount < 4)
+        {
+            releaseTimer += dt;
+            if (releaseTimer >= releaseInterval)
+            {
+                fantomes[releasedCount]->release();
+                releasedCount++;
+                releaseTimer = 0.f;
+            }
+        }
+
         
         // clear de la fenêtre
         fenetre_obj.clear();
         
         // rendu graphique
-        window.createMap(0, 10, pacman.getScore(), 3);
-        window.createPacman(pacman.getX(), pacman.getY(), pacman.getDirection(), mouthAngle);
+        window.createMap(0, 10, pacman.getScore(), pacman.getLife());
+        window.createPacman(pacman.getX(), pacman.getY(), pacman.getDirection(), mouthAngle, pacman.getBoost());
         for (int i = 0; i < 4; i++)
         {
-            window.createGhosts(fantomes[i]->getX(), fantomes[i]->getY(), fantomes[i]->getNumber(), time);
+            window.createGhosts(fantomes[i]->getX(), fantomes[i]->getY(), fantomes[i]->getNumber(), time, pacman.getBoost());
         }
 
         // affichage de la fenêtre

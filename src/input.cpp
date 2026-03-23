@@ -25,28 +25,36 @@ void Pacman::update(float dt)
             int tileY1 = (int)((py + 1 - offset) / 25);
             int tileY2 = (int)((py + m_size - 1 - offset) / 25);
             return m_display.getMap(tileX, tileY1) != 1
-                && m_display.getMap(tileX, tileY2) != 1;
+                && m_display.getMap(tileX, tileY2) != 1
+                && m_display.getMap(tileX, tileY1) != 4
+                && m_display.getMap(tileX, tileY2) != 4;
         }
         if (dir == 1) {
             int tileX  = (int)((px - 1) / 25);
             int tileY1 = (int)((py + 1 - offset) / 25);
             int tileY2 = (int)((py + m_size - 1 - offset) / 25);
             return m_display.getMap(tileX, tileY1) != 1
-                && m_display.getMap(tileX, tileY2) != 1;
+                && m_display.getMap(tileX, tileY2) != 1
+                && m_display.getMap(tileX, tileY1) != 4
+                && m_display.getMap(tileX, tileY2) != 4;
         }
         if (dir == 0) {
             int tileY  = (int)((py - 1 - offset) / 25);
             int tileX1 = (int)((px + 1) / 25);
             int tileX2 = (int)((px + m_size - 1) / 25);
             return m_display.getMap(tileX1, tileY) != 1
-                && m_display.getMap(tileX2, tileY) != 1;
+                && m_display.getMap(tileX2, tileY) != 1
+                && m_display.getMap(tileX1, tileY) != 4
+                && m_display.getMap(tileX2, tileY) != 4;
         }
         if (dir == 2) {
             int tileY  = (int)((py + m_size - offset) / 25);
             int tileX1 = (int)((px + 1) / 25);
             int tileX2 = (int)((px + m_size - 1) / 25);
             return m_display.getMap(tileX1, tileY) != 1
-                && m_display.getMap(tileX2, tileY) != 1;
+                && m_display.getMap(tileX2, tileY) != 1
+                && m_display.getMap(tileX1, tileY) != 4
+                && m_display.getMap(tileX2, tileY) != 4;
         }
         return false;
     };
@@ -99,10 +107,52 @@ void Pacman::update(float dt)
     m_wantedDirection = -1;
 
     // --- Scores ---
-    if (m_display.updateMap((m_x+12.5)/25, ((m_y+12.5) - m_display.getOffset())/25) == 1)
+    int type = m_display.updateMap((m_x+12.5)/25, ((m_y+12.5) - m_display.getOffset())/25);
+    if (type == 1)
     {
         m_score += 100;
     }
+    if (type == 2)
+    {
+        std::vector<unsigned int>& bonus = m_display.getBonus();
+        int index = rand() % bonus.size();
+        int valeur = bonus[index];
+        bonus.erase(bonus.begin() + index);
+
+        if(valeur == 1)
+        {
+            m_startBoost = std::chrono::steady_clock::now();
+            m_boost = true;
+        }
+        else if(valeur == 2)
+        {
+            m_score += 500;
+        }
+        else if(valeur == 3)
+        {
+            upLife();
+        }
+    }
+    if (m_boost)
+    {
+        auto now = std::chrono::steady_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - m_startBoost).count();
+
+        if (elapsed > 10)
+        {
+            m_boost = false;
+        }
+    }
+}
+
+void Pacman::reduceLife()
+{
+    m_life -= 1;
+}
+
+int const Pacman::getLife()
+{
+    return m_life;
 }
 
 float const Pacman::getX()
@@ -123,4 +173,22 @@ int const Pacman::getDirection()
 int const Pacman::getScore()
 {
     return m_score;
+}
+
+bool const Pacman::getBoost()
+{
+    return m_boost;
+}
+
+void Pacman::upLife()
+{
+    m_life += 1;
+}
+
+void Pacman::setPosition(float x, float y)
+{ 
+    m_x = x; 
+    m_y = y; 
+    m_direction = -1; 
+    m_wantedDirection = -1;
 }

@@ -49,6 +49,11 @@ void Display::createMap(int level, int highScore, int score, int nbLife)
                 sf::Color c1 = colorMap[4];
                 createSquare(25, 3, c1, j * 25.f, i * 25.f); // mur coloré en haut
             }
+            else if (id == 5)
+            {
+                sf::Color c = colorMap[0];
+                createSquare(25, 25, c, j * 25.f, i * 25.f);
+            }
         }
     }
     showLife(nbLife);
@@ -76,20 +81,20 @@ void Display::createWall(int i, int j)
     sf::Color mur = colorMap[1];
     createSquare(25, 25, vide, j * 25.f, i * 25.f);
 
-    if (i < 1 || map[i-1][j] == 0 || map[i-1][j] == 2 || map[i-1][j] == 3)
+    if (i < 1 || map[i-1][j] != 1)
     {
     createSquare(25, 3, mur, j * 25.f, i * 25.f);
     }
-    if (i > 29 || map[i+1][j] == 0 || map[i+1][j] == 2 || map[i+1][j] == 3)
+    if (i > 29 || map[i+1][j] != 1)
     {
     createSquare(25, 3, mur, j * 25.f, i * 25.f + 22.0f);
     }
 
-    if (j < 1 || map[i][j-1] == 0 || map[i][j-1] == 2 || map[i][j-1] == 3)
+    if (j < 1 || map[i][j-1] != 1)
     {
     createSquare(3, 25, mur, j * 25.f, i * 25.f);
     }
-    if (j > 26 || map[i][j+1] == 0 || map[i][j+1] == 2 || map[i][j+1] == 3)
+    if (j > 26 || map[i][j+1] != 1)
     {
     createSquare(3, 25, mur, j * 25.f + 22.0f, i * 25.f);
     }
@@ -104,10 +109,15 @@ int Display::updateMap(int x, int y)
 {
     if ((y >= 0 && y <= 30) && (x >= 0 && x <= 27))
     {
-        if (map[y][x] == 2 || map[y][x] == 3)
+        if (map[y][x] == 3)
         {
-            map[y][x] = 0;
+            map[y][x] = 5;
             return 1;
+        }
+        if (map[y][x] == 2)
+        {
+            map[y][x] = 5;
+            return 2;
         }
     }
     return 0;
@@ -182,7 +192,7 @@ void Display::showLife(int nbLife)
     }
 }
 
-void Display::createPacman(float posex, float posey, int direction, int mouthAngle)
+void Display::createPacman(float posex, float posey, int direction, int mouthAngle, bool boost)
 {
     const int points = 32; // résolution du cercle
     const float radius = 12.5f;
@@ -210,13 +220,20 @@ void Display::createPacman(float posex, float posey, int direction, int mouthAng
     pacman.setPoint(i + 1, sf::Vector2f(px, py));
     }
 
-    pacman.setFillColor(sf::Color::Yellow);
+    if (boost)
+    {
+        pacman.setFillColor(sf::Color::White);
+    }
+    else
+    {
+        pacman.setFillColor(sf::Color::Yellow);
+    }
     pacman.setPosition(sf::Vector2f(posex, posey));
     m_window.draw(pacman);
 }
 
 // Ajoute float time en paramètre
-void Display::createGhosts(float posex, float posey, int number, float time)
+void Display::createGhosts(float posex, float posey, int number, float time, bool boost)
 {
     const int headPoints = 16;   // Points pour le demi-cercle du haut
     const int bottomPoints = 10; // Nombre de points pour les vagues du bas
@@ -252,8 +269,9 @@ void Display::createGhosts(float posex, float posey, int number, float time)
     ghost.setPosition(sf::Vector2f(posex, posey));
     m_window.draw(ghost);
 
+    if (boost) { number = 5; }
     // --- Dessine les yeux ici (comme vu précédemment) ---
-    ghost.setFillColor(number < 4 ? colors[number] : sf::Color::White);
+    ghost.setFillColor(number < 4 ? colors[number] : sf::Color::Blue);
     
     // Correction ici : on passe un Vector2f
     ghost.setPosition(sf::Vector2f(posex, posey));

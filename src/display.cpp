@@ -1,7 +1,8 @@
-#include "Display.h"
+#include "display.h"
 
 Display::Display() : m_window(sf::VideoMode(m_size), "Pacman")
 {
+    // Importation de la police avec gestion d'échec
     if (!m_font.openFromFile("./assets/arial.ttf"))
     {
         std::cout << "Erreur de chargement de la police" << std::endl;
@@ -10,18 +11,18 @@ Display::Display() : m_window(sf::VideoMode(m_size), "Pacman")
 
 Display::~Display() {}
 
-void Display::createMap(int level, int highScore, int score, int nbLife)
+void Display::createMap(int level, int highScore, int score, int nbLife) // Parcour le tableau pour générer la map
 {
     showInfo(level, highScore, score);
-    for (int i = 0; i < y; i++)
+    for (int i = 0; i < m_y; i++)
     {
-        for (int j = 0; j < x; j++)
+        for (int j = 0; j < m_x; j++)
         {
-            int id = map[i][j];
+            int id = m_map[i][j];
 
             if (id == 0)
             {
-                sf::Color c = colorMap[0];
+                sf::Color c = m_colorMap[0];
                 createSquare(25, 25, c, j * 25.f, i * 25.f);
             }
             else if (id == 1)
@@ -30,28 +31,28 @@ void Display::createMap(int level, int highScore, int score, int nbLife)
             }
             else if (id == 2)
             {
-                sf::Color c = colorMap[0];
+                sf::Color c = m_colorMap[0];
                 createSquare(25, 25, c, j * 25.f, i * 25.f);
-                sf::Color c1 = colorMap[2];
+                sf::Color c1 = m_colorMap[2];
                 createCircle(7, c1, j * 25.f + 5.5f, i * 25.f + 5.5f);
             }
             else if (id == 3)
             {
-                sf::Color c = colorMap[0];
+                sf::Color c = m_colorMap[0];
                 createSquare(25, 25, c, j * 25.f, i * 25.f);
-                sf::Color c1 = colorMap[3];
+                sf::Color c1 = m_colorMap[3];
                 createCircle(4, c1, j * 25.f + 8.5f, i * 25.f + 8.5f);
             }
             else if (id == 4)
             {
-                sf::Color c = colorMap[0];
+                sf::Color c = m_colorMap[0];
                 createSquare(25, 25, c, j * 25.f, i * 25.f); // fond noir
-                sf::Color c1 = colorMap[4];
+                sf::Color c1 = m_colorMap[4];
                 createSquare(25, 3, c1, j * 25.f, i * 25.f); // mur coloré en haut
             }
             else if (id == 5)
             {
-                sf::Color c = colorMap[0];
+                sf::Color c = m_colorMap[0];
                 createSquare(25, 25, c, j * 25.f, i * 25.f);
             }
         }
@@ -75,26 +76,26 @@ void Display::createCircle(float ray, sf::Color color, float posX, float posY)
     m_window.draw(cercle);
 }
 
-void Display::createWall(int i, int j)
+void Display::createWall(int i, int j) // Les murs ne sont pas plein, se ne sont que de bodures
 {
-    sf::Color vide = colorMap[0];
-    sf::Color mur = colorMap[1];
+    sf::Color vide = m_colorMap[0];
+    sf::Color mur = m_colorMap[1];
     createSquare(25, 25, vide, j * 25.f, i * 25.f);
 
-    if (i < 1 || map[i-1][j] != 1)
+    if (i < 1 || m_map[i-1][j] != 1)
     {
     createSquare(25, 3, mur, j * 25.f, i * 25.f);
     }
-    if (i > 29 || map[i+1][j] != 1)
+    if (i > 29 || m_map[i+1][j] != 1)
     {
     createSquare(25, 3, mur, j * 25.f, i * 25.f + 22.0f);
     }
 
-    if (j < 1 || map[i][j-1] != 1)
+    if (j < 1 || m_map[i][j-1] != 1)
     {
     createSquare(3, 25, mur, j * 25.f, i * 25.f);
     }
-    if (j > 26 || map[i][j+1] != 1)
+    if (j > 26 || m_map[i][j+1] != 1)
     {
     createSquare(3, 25, mur, j * 25.f + 22.0f, i * 25.f);
     }
@@ -105,18 +106,18 @@ sf::RenderWindow& Display::getWindow()
     return m_window;
 }
 
-int Display::updateMap(int x, int y)
+int Display::updateMap(int x, int y) // Transforme les Pac goms en vide
 {
     if ((y >= 0 && y <= 30) && (x >= 0 && x <= 27))
     {
-        if (map[y][x] == 3)
+        if (m_map[y][x] == 3)
         {
-            map[y][x] = 5;
+            m_map[y][x] = 5;
             return 1;
         }
-        if (map[y][x] == 2)
+        if (m_map[y][x] == 2)
         {
-            map[y][x] = 5;
+            m_map[y][x] = 5;
             return 2;
         }
     }
@@ -125,9 +126,9 @@ int Display::updateMap(int x, int y)
 
 int Display::getMap(int x, int y)
 {
-    if (x < 0 || x >= (int)this->x || y < 0 || y >= (int)this->y)
+    if (x < 0 || x >= (int)this->m_x || y < 0 || y >= (int)this->m_y)
         return 1; // traiter les bords comme des murs
-    return map[y][x];
+    return m_map[y][x];
 }
 
 void Display::showInfo(int level, int highScore, int score)
@@ -141,32 +142,32 @@ void Display::showInfo(int level, int highScore, int score)
 
     one.setString("Level");
     one.setCharacterSize(35);
-    one.setFillColor(colorMap[2]);
+    one.setFillColor(m_colorMap[2]);
     one.setPosition(sf::Vector2f(100, 25));
 
     one_1.setString(std::to_string(level));
     one_1.setCharacterSize(35);
-    one_1.setFillColor(colorMap[2]);
+    one_1.setFillColor(m_colorMap[2]);
     one_1.setPosition(sf::Vector2f(100, 75));
     
     two.setString("High-scores");
     two.setCharacterSize(35);
-    two.setFillColor(colorMap[2]);
+    two.setFillColor(m_colorMap[2]);
     two.setPosition(sf::Vector2f(250, 25));
 
     two_1.setString(std::to_string(highScore));
     two_1.setCharacterSize(35);
-    two_1.setFillColor(colorMap[2]);
+    two_1.setFillColor(m_colorMap[2]);
     two_1.setPosition(sf::Vector2f(250, 75));
     
     three.setString("Scores");
     three.setCharacterSize(35);
-    three.setFillColor(colorMap[2]);
+    three.setFillColor(m_colorMap[2]);
     three.setPosition(sf::Vector2f(500, 25));
 
     three_1.setString(std::to_string(score));
     three_1.setCharacterSize(35);
-    three_1.setFillColor(colorMap[2]);
+    three_1.setFillColor(m_colorMap[2]);
     three_1.setPosition(sf::Vector2f(500, 75));
     
     m_window.draw(one);
@@ -181,12 +182,12 @@ void Display::showLife(int nbLife)
 {
     for (int i = 0; i < nbLife; i ++)
     {
-        createCircle(12, colorMap[3], (24+9)*i + 9, y * pas + m_life - 33);
+        createCircle(12, m_colorMap[3], (24+9)*i + 9, m_y * m_pas + m_life - 33);
 
         sf::CircleShape triangle(12, 3);
-        triangle.setFillColor(colorMap[0]);
+        triangle.setFillColor(m_colorMap[0]);
         triangle.setOrigin({6.0f, 6.0f});
-        triangle.setPosition(sf::Vector2f((24+9)*i + 9 + 6, y * pas + m_offset + m_life - 27));
+        triangle.setPosition(sf::Vector2f((24+9)*i + 9 + 6, m_y * m_pas + m_offset + m_life - 27));
         triangle.rotate(sf::degrees(90));
         m_window.draw(triangle);
     }
@@ -232,7 +233,6 @@ void Display::createPacman(float posex, float posey, int direction, int mouthAng
     m_window.draw(pacman);
 }
 
-// Ajoute float time en paramètre
 void Display::createGhosts(float posex, float posey, int number, float time, bool boost)
 {
     const int headPoints = 16;   // Points pour le demi-cercle du haut
@@ -262,7 +262,7 @@ void Display::createGhosts(float posex, float posey, int number, float time, boo
         ghost.setPoint(headPoints + i, sf::Vector2f(x, ghostHeight + wave));
     }
 
-    // --- Garde ton switch de couleur ici ---
+    // --- Choix des couleurs ---
     sf::Color colors[] = {sf::Color::Red, sf::Color(255,182,255), sf::Color::Cyan, sf::Color(255,182,85)};
     ghost.setFillColor(number < 4 ? colors[number] : sf::Color::White);
     
@@ -270,10 +270,9 @@ void Display::createGhosts(float posex, float posey, int number, float time, boo
     m_window.draw(ghost);
 
     if (boost) { number = 5; }
-    // --- Dessine les yeux ici (comme vu précédemment) ---
+    // --- Dessine les yeux ici ---
     ghost.setFillColor(number < 4 ? colors[number] : sf::Color::Blue);
     
-    // Correction ici : on passe un Vector2f
     ghost.setPosition(sf::Vector2f(posex, posey));
     m_window.draw(ghost);
 
@@ -281,7 +280,6 @@ void Display::createGhosts(float posex, float posey, int number, float time, boo
     sf::CircleShape eye(3.f);
     eye.setFillColor(sf::Color::White);
     
-    // Correction ici aussi
     eye.setPosition(sf::Vector2f(posex + radius * 0.4f, posey + radius * 0.6f));
     m_window.draw(eye);
     
@@ -292,7 +290,6 @@ void Display::createGhosts(float posex, float posey, int number, float time, boo
     sf::CircleShape pupil(1.5f);
     pupil.setFillColor(sf::Color::Blue);
     
-    // Et encore ici
     pupil.setPosition(sf::Vector2f(posex + radius * 0.5f, posey + radius * 0.8f));
     m_window.draw(pupil);
     

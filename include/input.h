@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <chrono>
 
-#include "Display.h"
+#include "display.h"
 
 
 class Pacman

@@ -1,7 +1,7 @@
 #ifndef GHOST_H
 #define GHOST_H
 
-#include "Display.h"
+#include "display.h"
 #include "input.h"
 
 class Ghost

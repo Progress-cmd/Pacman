@@ -24,27 +24,27 @@ public:
     void createPacman(float posex, float posey, int direction, int mouthAngle, bool boost);
     void createGhosts(float posex, float posey, int number, float time, bool boost);
 
-    int getSizeX() { return x; }
-    int getSizeY() { return y; }
-    int getPas() { return pas; }
+    int getSizeX() { return m_x; }
+    int getSizeY() { return m_y; }
+    int getPas() { return m_pas; }
     int getOffset() { return m_offset; }
     std::vector<unsigned int>& getBonus() { return m_bonus; }
 
 private:
-	static const unsigned int y = 31;
-	static const unsigned int x = 28;
+	static const unsigned int m_y = 31;
+	static const unsigned int m_x = 28;
 
-	unsigned int pas = 25;
+	unsigned int m_pas = 25;
 	unsigned int m_offset = 150;
 	unsigned int m_life = 42;
 
     std::vector<unsigned int> m_bonus = {1,1,2,3}; // bonus 1 : mangeur de fantome; bonus 2 : +500 points; bonus 3 : vie supplémentaire
-	sf::Vector2u m_size = { x * pas, y * pas + m_offset + m_life};
+	sf::Vector2u m_size = { m_x * m_pas, m_y * m_pas + m_offset + m_life};
 	sf::RenderWindow m_window;
     sf::Font m_font;
 
     // 28 colonnes x 31 lignes
-    int map[y][x] = {
+    int m_map[m_y][m_x] = {
         {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, // 0
         {1,3,3,3,3,3,3,3,3,3,3,3,3,1,1,3,3,3,3,3,3,3,3,3,3,3,3,1}, // 1
         {1,3,1,1,1,1,3,1,1,1,1,1,3,1,1,3,1,1,1,1,1,3,1,1,1,1,3,1}, // 2
@@ -79,13 +79,13 @@ private:
     };
 
 
-	std::unordered_map<int, sf::Color> colorMap = {
-		{0, sf::Color::Black},  // Vide
-		{1, sf::Color::Blue},   // Mur
-        {2, sf::Color::White},  // Super Pac gom
-        {3, sf::Color::Yellow},  // Pac gom
-        {4, sf::Color(255, 182, 193)}, // rose clair mur spawn
-        {5, sf::Color::Black}
+	std::unordered_map<int, sf::Color> m_colorMap = {
+		{0, sf::Color::Black},          // Vide
+		{1, sf::Color::Blue},           // Mur
+        {2, sf::Color::White},          // Super Pac gom
+        {3, sf::Color::Yellow},         // Pac gom
+        {4, sf::Color(255, 182, 193)},  // rose clair mur spawn
+        {5, sf::Color::Black}           // Pac gom mangée
 	};
 
 	void createSquare(float width, float height, sf::Color color, float posX, float posY);

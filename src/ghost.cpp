@@ -1,4 +1,4 @@
-#include "Ghost.h"
+#include "ghost.h"
 
 Ghost::Ghost(float startX, float startY, int number, Display& win, Pacman& joueur)
     : m_x(startX), m_y(startY), m_number(number), m_display(win), m_pacman(joueur)
@@ -10,8 +10,10 @@ void Ghost::update(float dt)
 {
     int offset = m_display.getOffset();
 
+    // Lorsqu'il est encore dans la base
     if (m_etat == 0)
     {
+        // Déplacements verticaux
         if (!m_released)
         {
             if (m_direction == 0)
@@ -41,27 +43,28 @@ void Ghost::update(float dt)
             }
             return;
         }
-            
+        
+        // Temps de réaparition
         if (m_respawnTimer > 0.f)
         {
             m_respawnTimer -= dt;
             return;
         }
 
-        // Phase 1 : se recentrer sur la colonne de sortie (col 13 = x 325)
+        // Sortie de la cage, phase 1 : centrage
         float exitX = 13 * 25.f;
         if (std::abs(m_x - exitX) > 1.f)
         {
             float moveX = (exitX > m_x ? 1.f : -1.f) * m_speed * dt;
             m_x += moveX;
-            return; // on ne monte pas encore
+            return;
         }
         else
         {
-            m_x = exitX; // snap précis
+            m_x = exitX;
         }
 
-        // Phase 2 : monter jusqu'à la sortie (ligne 14 = y 350 avec offset)
+        // Sortie de la cage, phase 2 : sortie
         m_y -= m_speed * dt;
 
         if (m_y <= 11 * 25.f + 150)
@@ -74,95 +77,56 @@ void Ghost::update(float dt)
         }
     }
 
+    // Lorsqu'il à le droit de se balader
     else if (m_etat == 1)
     {
-        auto canMove = [&](int dir, float px, float py) -> bool {
-            if (dir == 3) {
-                int tileX  = (int)((px + m_size) / 25);
-                int tileY1 = (int)((py + 1 - offset) / 25);
-                int tileY2 = (int)((py + m_size - 1 - offset) / 25);
-                return m_display.getMap(tileX, tileY1) != 1
-                    && m_display.getMap(tileX, tileY2) != 1
-                    && m_display.getMap(tileX, tileY1) != 4
-                    && m_display.getMap(tileX, tileY2) != 4
-                    && m_display.getMap(tileX, tileY1) != 0
-                    && m_display.getMap(tileX, tileY2) != 0;
-            }
-            if (dir == 1) {
-                int tileX  = (int)((px - 1) / 25);
-                int tileY1 = (int)((py + 1 - offset) / 25);
-                int tileY2 = (int)((py + m_size - 1 - offset) / 25);
-                return m_display.getMap(tileX, tileY1) != 1
-                    && m_display.getMap(tileX, tileY2) != 1
-                    && m_display.getMap(tileX, tileY1) != 4
-                    && m_display.getMap(tileX, tileY2) != 4
-                    && m_display.getMap(tileX, tileY1) != 0
-                    && m_display.getMap(tileX, tileY2) != 0;
-            }
-            if (dir == 0) {
-                int tileY  = (int)((py - 1 - offset) / 25);
-                int tileX1 = (int)((px + 1) / 25);
-                int tileX2 = (int)((px + m_size - 1) / 25);
-                return m_display.getMap(tileX1, tileY) != 1
-                    && m_display.getMap(tileX2, tileY) != 1
-                    && m_display.getMap(tileX1, tileY) != 4
-                    && m_display.getMap(tileX2, tileY) != 4
-                    && m_display.getMap(tileX1, tileY) != 0
-                    && m_display.getMap(tileX2, tileY) != 0;
-            }
-            if (dir == 2) {
-                int tileY  = (int)((py + m_size - offset) / 25);
-                int tileX1 = (int)((px + 1) / 25);
-                int tileX2 = (int)((px + m_size - 1) / 25);
-                return m_display.getMap(tileX1, tileY) != 1
-                    && m_display.getMap(tileX2, tileY) != 1
-                    && m_display.getMap(tileX1, tileY) != 4
-                    && m_display.getMap(tileX2, tileY) != 4
-                    && m_display.getMap(tileX1, tileY) != 0
-                    && m_display.getMap(tileX2, tileY) != 0;
-            }
-            return false;
-        };
-
-        auto opposite = [](int dir) -> int {
-            if (dir == 0) return 2;
-            if (dir == 2) return 0;
-            if (dir == 1) return 3;
-            if (dir == 3) return 1;
-            return -1;
-        };
-
         int currentTileX = (int)std::round(m_x / 25.f);
         int currentTileY = (int)std::round(m_y / 25.f);
         bool newTile = (currentTileX != m_lastTileX || currentTileY != m_lastTileY);
 
         float snappedX = currentTileX * 25.f;
         float snappedY = currentTileY * 25.f;
-        const float snapTolerance = 4.f;
-        bool isAligned = std::abs(snappedX - m_x) <= snapTolerance
-                      && std::abs(snappedY - m_y) <= snapTolerance;
+        bool isAligned = std::abs(snappedX - m_x) <= 4.f && std::abs(snappedY - m_y) <= 4.f;
 
+        // --- Changement de direction à l'intersection ---
         if (isAligned && newTile)
         {
             m_lastTileX = currentTileX;
             m_lastTileY = currentTileY;
 
             std::vector<int> choices;
-            for (int dir : {0, 1, 2, 3})
+            for (int d = 0; d < 4; d++)
             {
-                if (dir == opposite(m_direction)) continue;
-                if (canMove(dir, snappedX, snappedY))
-                    choices.push_back(dir);
+                // Éviter le demi-tour (0<->2 et 1<->3)
+                if (m_direction != -1 && (d == (m_direction + 2) % 4)) continue;
+
+                int tx1, ty1, tx2, ty2;
+                if (d == 3) { tx1 = tx2 = (int)((snappedX + m_size) / 25); ty1 = (int)((snappedY + 1 - offset) / 25); ty2 = (int)((snappedY + m_size - 1 - offset) / 25); }
+                else if (d == 1) { tx1 = tx2 = (int)((snappedX - 1) / 25); ty1 = (int)((snappedY + 1 - offset) / 25); ty2 = (int)((snappedY + m_size - 1 - offset) / 25); }
+                else if (d == 0) { ty1 = ty2 = (int)((snappedY - 1 - offset) / 25); tx1 = (int)((snappedX + 1) / 25); tx2 = (int)((snappedX + m_size - 1) / 25); }
+                else { ty1 = ty2 = (int)((snappedY + m_size - offset) / 25); tx1 = (int)((snappedX + 1) / 25); tx2 = (int)((snappedX + m_size - 1) / 25); }
+
+                int v1 = m_display.getMap(tx1, ty1), v2 = m_display.getMap(tx2, ty2);
+                if (v1 != 1 && v1 != 4 && v1 != 0 && v2 != 1 && v2 != 4 && v2 != 0)
+                    choices.push_back(d);
             }
-            if (!choices.empty())
-            {
+
+            if (!choices.empty()) {
                 m_x = snappedX;
                 m_y = snappedY;
                 m_direction = choices[std::rand() % choices.size()];
             }
         }
 
-        if (m_direction != -1 && canMove(m_direction, m_x, m_y)) {
+        // --- Déplacement ---
+        int tx1, ty1, tx2, ty2;
+        if (m_direction == 3) { tx1 = tx2 = (int)((m_x + m_size) / 25); ty1 = (int)((m_y + 1 - offset) / 25); ty2 = (int)((m_y + m_size - 1 - offset) / 25); }
+        else if (m_direction == 1) { tx1 = tx2 = (int)((m_x - 1) / 25); ty1 = (int)((m_y + 1 - offset) / 25); ty2 = (int)((m_y + m_size - 1 - offset) / 25); }
+        else if (m_direction == 0) { ty1 = ty2 = (int)((m_y - 1 - offset) / 25); tx1 = (int)((m_x + 1) / 25); tx2 = (int)((m_x + m_size - 1) / 25); }
+        else if (m_direction == 2) { ty1 = ty2 = (int)((m_y + m_size - offset) / 25); tx1 = (int)((m_x + 1) / 25); tx2 = (int)((m_x + m_size - 1) / 25); }
+
+        int v1 = m_display.getMap(tx1, ty1), v2 = m_display.getMap(tx2, ty2);
+        if (m_direction != -1 && v1 != 1 && v1 != 4 && v1 != 0 && v2 != 1 && v2 != 4 && v2 != 0) {
             if (m_direction == 3) m_x += m_speed * dt;
             if (m_direction == 1) m_x -= m_speed * dt;
             if (m_direction == 0) m_y -= m_speed * dt;

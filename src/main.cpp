@@ -3,23 +3,16 @@
 #include <cmath>
 
 #include "input.h"
-#include "Display.h"
-#include "Ghost.h"
+#include "display.h"
+#include "ghost.h"
 
 
 int main()
 {
-    // --- Initialisation --- //
+    // === Initialisation === //
+    // --- Création des objets --- //
     Display window;
-
-    sf::RenderWindow& fenetre_obj = window.getWindow();
-    fenetre_obj.setFramerateLimit(60);
-
     Pacman pacman(14 * 25.f, 23 * 25.f, window);
-
-    sf::Clock clock; // horloge spéfifique au déplacement
-    sf::Clock animationClock; // horloge spécifique à l'animation de la bouche
-
     std::vector<Ghost*> fantomes;
     for (int i = 0; i < 4; i++)
     {
@@ -27,32 +20,57 @@ int main()
         fantomes.push_back(g);
     }
 
+    sf::RenderWindow& fenetre_obj = window.getWindow();
+    fenetre_obj.setFramerateLimit(60);
+
+    sf::Clock clock; // horloge spéfifique au déplacement
+    sf::Clock animationClock; // horloge spécifique à l'animation de la bouche
+
     std::srand(std::time(nullptr));
 
     int lastLife = pacman.getLife();
 
+    // --- Départ des fantômes --- //
     float releaseTimer = 0.f;
     int releasedCount = 0;
     const float releaseInterval = 5.f; // 1 fantôme toutes les 5 secondes
 
-    // --- Boucle principale --- //
+    bool win = false;
+
+    // === Boucle principale === //
     while (fenetre_obj.isOpen())
     {
-        // boucle qui vérifie si la fenêtre est toujours ouverte
+        // Boucle qui vérifie si la fenêtre est toujours ouverte
         while (const std::optional event = fenetre_obj.pollEvent())
         {
             if (event->is<sf::Event::Closed>())
                 fenetre_obj.close();
         }
 
-        // animation de la bouche
+        // Vérification de victoire
+        win = true;
+        for (int i = 0; i < 31; i ++)
+        {
+            for (int j = 0; j < 28; j ++)
+            {
+                int value = window.getMap(i, j);
+                if (value == 2 || value == 3)
+                {
+                    win = false;
+                    break;
+                }
+            }
+        }
+        if (win) { std::cout << "Vous avez gagné !" << std::endl; break; }
+
+        // Animation de la bouche du Pacman
         float time = animationClock.getElapsedTime().asSeconds();
         float speed = 5.0f;      // vitesse de battement
         float maxAngle = 35.f;   // ouverture max de la bouche
 
         float mouthAngle = std::abs(std::sin(time * speed)) * maxAngle;
 
-        // gestion du pacman
+        // Gestion des entitées
         float dt = clock.restart().asSeconds();
         pacman.update(dt);
         for (int i = 0; i < 4; i++)
@@ -60,13 +78,16 @@ int main()
             fantomes[i]->update(dt);
         }
 
+        // Vérification de défaite
         int currentLife = pacman.getLife();
         if (currentLife < lastLife)
         {
             pacman.setPosition(14 * 25.f, 23 * 25.f);
             lastLife = currentLife;
         }
+        if (currentLife == 0) { std::cout << "Vous avez perdu !" << std::endl; break; }
 
+        // Démarrage des fantômes, à la suite
         if (releasedCount < 4)
         {
             releaseTimer += dt;
@@ -78,7 +99,6 @@ int main()
             }
         }
 
-        
         // clear de la fenêtre
         fenetre_obj.clear();
         

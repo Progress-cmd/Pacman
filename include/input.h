@@ -28,6 +28,8 @@ public:
     void upLife();
 
 private:
+    bool canMove(int dir, float px, float py, int offset);
+
     float m_x, m_y;
 
     float m_speed = 150.f;

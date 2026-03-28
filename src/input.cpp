@@ -10,55 +10,47 @@ void Pacman::update(float dt)
 
     // --- Direction souhaitée ---
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right)) m_wantedDirection = 3;
-    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))  m_wantedDirection = 1;
-    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))    m_wantedDirection = 0;
-    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))  m_wantedDirection = 2;
-
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))  m_wantedDirection = 1;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))    m_wantedDirection = 0;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))  m_wantedDirection = 2;
+    
     // --- Snap + changement de direction ---
-    // Le snap permet de recentrer le pacman sur les couloirs
+    bool horizontal = (m_direction == 1 || m_direction == 3);
+    bool wantVertical   = (m_wantedDirection == 0 || m_wantedDirection == 2);
+    bool wantHorizontal = (m_wantedDirection == 1 || m_wantedDirection == 3);
+
     if (m_wantedDirection != -1)
     {
         float snappedX = m_x;
         float snappedY = m_y;
 
-        // On calcule le snap selon l'axe de mouvement actuel
-        if (m_direction == 1 || m_direction == 3) { snappedX = std::round(m_x / 25.f) * 25.f; } // Horizontal
-        else { snappedY = std::round(m_y / 25.f) * 25.f; } // Vertical
+        // Si on veut aller en vertical alors qu'on va en horizontal : snap sur X
+        if (horizontal && wantVertical)
+            snappedX = std::round(m_x / 25.f) * 25.f;
 
-        if (std::abs(snappedX - m_x) <= 6.f && std::abs(snappedY - m_y) <= 6.f)
+        // Si on veut aller en horizontal alors qu'on va en vertical : snap sur Y
+        if (!horizontal && wantHorizontal)
+            snappedY = std::round(m_y / 25.f) * 25.f;
+
+        // On autorise le snap seulement si on est proche (<= snapTolerance px)
+        const float snapTolerance = 6.f;
+        bool snapOk = std::abs(snappedX - m_x) <= snapTolerance
+                   && std::abs(snappedY - m_y) <= snapTolerance;
+
+        if (snapOk && canMove(m_wantedDirection, snappedX, snappedY, offset))
         {
-            // Test de collision pour m_wantedDirection
-            int tx1, ty1, tx2, ty2;
-            if (m_wantedDirection == 3) { tx1 = tx2 = (int)((snappedX + m_size) / 25); ty1 = (int)((snappedY + 1 - offset) / 25); ty2 = (int)((snappedY + m_size - 1 - offset) / 25); }
-            else if (m_wantedDirection == 1) { tx1 = tx2 = (int)((snappedX - 1) / 25); ty1 = (int)((snappedY + 1 - offset) / 25); ty2 = (int)((snappedY + m_size - 1 - offset) / 25); }
-            else if (m_wantedDirection == 0) { ty1 = ty2 = (int)((snappedY - 1 - offset) / 25); tx1 = (int)((snappedX + 1) / 25); tx2 = (int)((snappedX + m_size - 1) / 25); }
-            else { ty1 = ty2 = (int)((snappedY + m_size - offset) / 25); tx1 = (int)((snappedX + 1) / 25); tx2 = (int)((snappedX + m_size - 1) / 25); }
-
-            int v1 = m_display.getMap(tx1, ty1), v2 = m_display.getMap(tx2, ty2);
-            if (v1 != 1 && v1 != 4 && v2 != 1 && v2 != 4) {
-                m_x = snappedX;
-                m_y = snappedY;
-                m_direction = m_wantedDirection;
-            }
+            m_x = snappedX;
+            m_y = snappedY;
+            m_direction = m_wantedDirection;
         }
     }
 
     // --- Déplacement ---
-    if (m_direction != -1)
-    {
-        int tx1, ty1, tx2, ty2;
-        if (m_direction == 3) { tx1 = tx2 = (int)((m_x + m_size) / 25); ty1 = (int)((m_y + 1 - offset) / 25); ty2 = (int)((m_y + m_size - 1 - offset) / 25); }
-        else if (m_direction == 1) { tx1 = tx2 = (int)((m_x - 1) / 25); ty1 = (int)((m_y + 1 - offset) / 25); ty2 = (int)((m_y + m_size - 1 - offset) / 25); }
-        else if (m_direction == 0) { ty1 = ty2 = (int)((m_y - 1 - offset) / 25); tx1 = (int)((m_x + 1) / 25); tx2 = (int)((m_x + m_size - 1) / 25); }
-        else { ty1 = ty2 = (int)((m_y + m_size - offset) / 25); tx1 = (int)((m_x + 1) / 25); tx2 = (int)((m_x + m_size - 1) / 25); }
-
-        int v1 = m_display.getMap(tx1, ty1), v2 = m_display.getMap(tx2, ty2);
-        if (v1 != 1 && v1 != 4 && v2 != 1 && v2 != 4) {
-            if (m_direction == 3) m_x += m_speed * dt;
-            if (m_direction == 1) m_x -= m_speed * dt;
-            if (m_direction == 0) m_y -= m_speed * dt;
-            if (m_direction == 2) m_y += m_speed * dt;
-        }
+    if (m_direction != -1 && canMove(m_direction, m_x, m_y, offset)) {
+        if (m_direction == 3) m_x += m_speed * dt;
+        if (m_direction == 1) m_x -= m_speed * dt;
+        if (m_direction == 0) m_y -= m_speed * dt;
+        if (m_direction == 2) m_y += m_speed * dt;
     }
 
     // --- Téléportation ---
@@ -66,8 +58,6 @@ void Pacman::update(float dt)
     if (m_x < 0) m_x = maxX;
     else if (m_x > maxX) m_x = 0;
     
-    m_wantedDirection = -1;
-
     // --- Scores et Bonus ---
     int type = m_display.updateMap((m_x + 12.5f) / 25, ((m_y + 12.5f) - offset) / 25);
     if (type == 1) m_score += 100;
@@ -91,6 +81,46 @@ void Pacman::update(float dt)
         if (std::chrono::duration_cast<std::chrono::seconds>(now - m_startBoost).count() > 10)
             m_boost = false;
     }
+}
+
+bool Pacman::canMove(int dir, float px, float py, int offset) {
+    if (dir == 3) {
+        int tileX  = (int)((px + m_size) / 25);
+        int tileY1 = (int)((py + 1 - offset) / 25);
+        int tileY2 = (int)((py + m_size - 1 - offset) / 25);
+        return m_display.getMap(tileX, tileY1) != 1
+            && m_display.getMap(tileX, tileY2) != 1
+            && m_display.getMap(tileX, tileY1) != 4
+            && m_display.getMap(tileX, tileY2) != 4;
+    }
+    if (dir == 1) {
+        int tileX  = (int)((px - 1) / 25);
+        int tileY1 = (int)((py + 1 - offset) / 25);
+        int tileY2 = (int)((py + m_size - 1 - offset) / 25);
+        return m_display.getMap(tileX, tileY1) != 1
+            && m_display.getMap(tileX, tileY2) != 1
+            && m_display.getMap(tileX, tileY1) != 4
+            && m_display.getMap(tileX, tileY2) != 4;
+    }
+    if (dir == 0) {
+        int tileY  = (int)((py - 1 - offset) / 25);
+        int tileX1 = (int)((px + 1) / 25);
+        int tileX2 = (int)((px + m_size - 1) / 25);
+        return m_display.getMap(tileX1, tileY) != 1
+            && m_display.getMap(tileX2, tileY) != 1
+            && m_display.getMap(tileX1, tileY) != 4
+            && m_display.getMap(tileX2, tileY) != 4;
+    }
+    if (dir == 2) {
+        int tileY  = (int)((py + m_size - offset) / 25);
+        int tileX1 = (int)((px + 1) / 25);
+        int tileX2 = (int)((px + m_size - 1) / 25);
+        return m_display.getMap(tileX1, tileY) != 1
+            && m_display.getMap(tileX2, tileY) != 1
+            && m_display.getMap(tileX1, tileY) != 4
+            && m_display.getMap(tileX2, tileY) != 4;
+    }
+    return false;
 }
 
 void Pacman::reduceLife()
